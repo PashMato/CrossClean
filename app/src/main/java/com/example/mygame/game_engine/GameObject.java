@@ -130,6 +130,10 @@ public class GameObject {
         }
     }
 
+    protected void onDelete() {
+
+    }
+
     /**
      * a function called each time we render a frame
      */

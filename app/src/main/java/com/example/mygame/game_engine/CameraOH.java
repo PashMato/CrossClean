@@ -104,7 +104,9 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
 
     public void drawAll() {
         GameObject g;
-        for (int i = 0; i < ALLGameObjects.size(); i++) {
+
+        for (int i = ALLGameObjects.size() - 1; i >= 0; i--)
+        { // Deletion changes size
             g = ALLGameObjects.get(i);
 
             g.update();
@@ -164,7 +166,7 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
         GLES30.glUniformMatrix4fv(rotMatrixHandle, 1, false, g.rotationMatrix, 0);
 
         // Draw the triangle
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, g.model3D.Triangles.length);
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, g.model3D.Triangles.length / 3);
 
         // Clean up
         GLES30.glDisableVertexAttribArray(positionHandle);

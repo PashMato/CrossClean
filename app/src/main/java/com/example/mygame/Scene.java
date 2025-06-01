@@ -14,8 +14,8 @@ import java.util.Random;
 
 public class Scene {
     float lastChunkPos = 0f;
-    float generateDis = 10f;
-    public float deleteDistance = 40f;
+    float generateDis = 50f;
+    public float deleteDistance = 100f;
     public Model3D laneModel;
     public Model3D grassModel;
     public Model3D carModel;
@@ -58,7 +58,7 @@ public class Scene {
         }
 
         for (int i = 0; i < grassNumber; i++) {
-            lastChunkPos += i * laneWidth;
+            lastChunkPos += laneWidth;
             float[] Pos = {defaultX, defaultY, lastChunkPos};
             GameObject lane = new GameObject(Pos, new float[2], grassModel, ObjectTypes.Background);
             GenerateTrees(lane);
