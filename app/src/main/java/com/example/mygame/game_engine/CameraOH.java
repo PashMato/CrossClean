@@ -204,7 +204,7 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
         GameObject g;
         for (List<GameObject> group : objectGroups) {
 
-            if (group != null && group.isEmpty()) {
+            if (group == null || group.isEmpty()) {
                 continue;
             }
 
