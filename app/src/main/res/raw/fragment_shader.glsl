@@ -5,18 +5,19 @@ varying vec2 vTexCoord;
 varying float vDiffuse;    // Diffuse lighting intensity from vertex shader
 uniform vec2 uTexSize;     // The screen size
 
-const float lodFactor = 3.0;
+const float lodFactor = 0.7;
 
 uniform vec4 fogColor; // Fog color
 uniform float fogStart;  // Start distance for fog effect
-uniform float fogEnd;   // End distance for fog effect
+uniform float uFar;   // End distance for fog effect
+uniform float uNear;   // End distance for fog effect
 
 void main() {
     float depth = gl_FragCoord.z;
-    float lod = float(pow(depth, 4.0) * lodFactor);
+    float lod = float(pow(depth, 5.5) * lodFactor);
 
     // Calculate the fog factor based on depth
-    float fogFactor = (fogEnd * depth - fogStart) / (fogEnd - fogStart);
+    float fogFactor = ((uFar - uNear) * depth - fogStart) / (uFar - fogStart);
     fogFactor = fogFactor < 0.0 ? 0.0 : fogFactor;
 
     // Blend the final color with the fog color

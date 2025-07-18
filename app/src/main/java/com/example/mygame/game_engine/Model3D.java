@@ -1,8 +1,8 @@
 package com.example.mygame.game_engine;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 
 import com.example.mygame.game_engine.Math.Vectors;
 
@@ -36,7 +36,7 @@ public class Model3D {
      * @param is_3d InputStream leading to the file
      * @return a Model3D Object representing the 3D model
      */
-    public static Model3D loadModelByPath(InputStream is_3d, InputStream is_texture) {
+    protected static Model3D loadModelByPath(InputStream is_3d, InputStream is_texture) {
         try {
             return parse(is_3d, is_texture);
         } catch (IOException e) {
@@ -44,6 +44,18 @@ public class Model3D {
         }
 
         return null;
+    }
+
+    /**
+     * Loads a .ply model to a 3D model object
+     * @param context the Intent context
+     * @param modelId the Id of the model
+     * @param textureId the Id of the model's texture
+     * @return a Model3D Object representing the 3D model
+     */
+    public static Model3D loadModelById(Context context, int modelId, int textureId) {
+        return Model3D.loadModelByPath(context.getResources().openRawResource(modelId),
+                context.getResources().openRawResource(textureId));
     }
     private static Model3D parse(InputStream is_3d, InputStream is_texture) throws IOException {
         /*
@@ -76,10 +88,10 @@ public class Model3D {
                 if (vertices.size() < vertexCount) {
                     String[] parts = line.split(" ");
                     float x = Float.parseFloat(parts[0]);
-                    float y = Float.parseFloat(parts[1]);
-                    float z = Float.parseFloat(parts[2]);
+                    float y = Float.parseFloat(parts[2]);
+                    float z = Float.parseFloat(parts[1]);
                     float s = Float.parseFloat(parts[3]);
-                    float t = Float.parseFloat(parts[4]);
+                    float t = 1 - Float.parseFloat(parts[4]); // Blender (0, 0) is on the top-left and OpenGL (0, 0) is on the bottom-left
 
                     vertices.add(new float[] {x, y, z});
                     uv_map.add(new float[] {s, t});
@@ -103,7 +115,7 @@ public class Model3D {
         float[] tri = new float[triangles.size() * 3];
         for (int i = 0; i < tri.length; i += 3) {
             float[] vertex = vertices.get(triangles.get(i / 3));
-            tri[i + 0] = vertex[0];
+            tri[i    ] = vertex[0];
             tri[i + 1] = vertex[1];
             tri[i + 2] = vertex[2];
         }
@@ -138,5 +150,9 @@ public class Model3D {
         Bitmap bitmap = BitmapFactory.decodeStream(is_texture);
 
         return new Model3D(tri, normals, triangleUVCoords, bitmap);
+    }
+
+    public float[] getTriangles() {
+        return Triangles.clone();
     }
 }

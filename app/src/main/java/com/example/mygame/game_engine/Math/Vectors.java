@@ -39,6 +39,18 @@ public class Vectors {
         }
     }
 
+    public static void Max(float[] vOut, float[] vMax) {
+        for (int i = 0; i < vOut.length; i++) {
+            vOut[i] = Math.max(vOut[i], vMax[i]);
+        }
+    }
+
+    public static void Min(float[] vOut, float[] vMin) {
+        for (int i = 0; i < vOut.length; i++) {
+            vOut[i] = Math.min(vOut[i], vMin[i]);
+        }
+    }
+
     public static float Dot(float[] v1, float[] v2) {
         float r = 0;
 
@@ -58,17 +70,15 @@ public class Vectors {
     public static float Norm(float[] v) {
         float r = 0;
 
-        for (int i = 0; i < v.length; i++) {
-            r += v[i] * v[i];
+        for (float value : v) {
+            r += value * value;
         }
 
         return (float) Math.sqrt(r);
     }
     public static void Normalize(float[] vOut) {
         float norm = Vectors.Norm(vOut);
-        if (norm == 0) {
-            return;
-        } else {
+        if (norm != 0) {
             Vectors.Multiply(vOut, 1 / norm);
         }
     }
@@ -93,30 +103,36 @@ public class Vectors {
         // Start with identity
         Matrix.setIdentityM(mat, 0);
 
-        // Apply scaling
-        Matrix.setIdentityM(tempMatrix, 0);
-        Matrix.scaleM(tempMatrix, 0, scale[0], scale[1], scale[2]);
-        Matrix.multiplyMM(mat, 0, tempMatrix, 0, mat, 0);
+        if (scale != null) {
+            // Apply scaling
+            Matrix.setIdentityM(tempMatrix, 0);
+            Matrix.scaleM(tempMatrix, 0, scale[0], scale[1], scale[2]);
+            Matrix.multiplyMM(mat, 0, tempMatrix, 0, mat, 0);
+        }
 
-        // Apply rotation around Y
-        Matrix.setIdentityM(tempMatrix, 0);
-        Matrix.rotateM(tempMatrix, 0, rot[1], 0, 1, 0);
-        Matrix.multiplyMM(mat, 0, tempMatrix, 0, mat, 0);
+        if (rot != null) {
+            // Apply rotation around Y
+            Matrix.setIdentityM(tempMatrix, 0);
+            Matrix.rotateM(tempMatrix, 0, rot[1], 0, 1, 0);
+            Matrix.multiplyMM(mat, 0, tempMatrix, 0, mat, 0);
 
-        // Apply rotation around X
-        Matrix.setIdentityM(tempMatrix, 0);
-        Matrix.rotateM(tempMatrix, 0, rot[0], 1, 0, 0);
-        Matrix.multiplyMM(mat, 0, tempMatrix, 0, mat, 0);
+            // Apply rotation around X
+            Matrix.setIdentityM(tempMatrix, 0);
+            Matrix.rotateM(tempMatrix, 0, rot[0], 1, 0, 0);
+            Matrix.multiplyMM(mat, 0, tempMatrix, 0, mat, 0);
 
-        // Apply rotation around Z
-        Matrix.setIdentityM(tempMatrix, 0);
-        Matrix.rotateM(tempMatrix, 0, rot[2], 0, 0, 1);
-        Matrix.multiplyMM(mat, 0, tempMatrix, 0, mat, 0);
+            // Apply rotation around Z
+            Matrix.setIdentityM(tempMatrix, 0);
+            Matrix.rotateM(tempMatrix, 0, rot[2], 0, 0, 1);
+            Matrix.multiplyMM(mat, 0, tempMatrix, 0, mat, 0);
+        }
 
-        // Apply translation
-        Matrix.setIdentityM(tempMatrix, 0);
-        Matrix.translateM(tempMatrix, 0, pos[0], pos[1], pos[2]);
-        Matrix.multiplyMM(mat, 0, mat, 0, tempMatrix, 0);
+        if (pos != null) {
+            // Apply translation
+            Matrix.setIdentityM(tempMatrix, 0);
+            Matrix.translateM(tempMatrix, 0, pos[0], pos[1], pos[2]);
+            Matrix.multiplyMM(mat, 0, mat, 0, tempMatrix, 0);
+        }
     }
 
     public static void setCameraMatrix(float[] outMatrix, float[] position, float[] rotation /* pitch, yaw, roll */) {
@@ -126,7 +142,7 @@ public class Vectors {
         Vectors.Multiply(rot, -1);
 
         rot[1] += 180f;
-        Vectors.setRtMatrix(outMatrix, pos, rot, new float[] {1f, 1f, 1f});
+        Vectors.setRtMatrix(outMatrix, pos, rot, null);
     }
 
     /**
@@ -153,10 +169,19 @@ public class Vectors {
         }
     }
 
-    public static void sign(float[] vOut, float[] v) {
-        for (int i = 0; i < v.length; i++) {
-            v[i] = Math.signum(v[i]);
+    public static void sign(float[] vOut) {
+        for (int i = 0; i < vOut.length; i++) {
+            vOut[i] = Math.signum(vOut[i]);
         }
+    }
+
+    public static boolean any(float[] vC1, float[] vC2) {
+        for (int i = 0; i < vC1.length; i++) {
+            if (vC1[i] != vC2[i]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void lookAt(float[] pOut, float[] rOut, float[] lookAtPos, float angle, float r) {
@@ -174,27 +199,5 @@ public class Vectors {
         Vectors.Add(pOut, dir);
 
         rOut[1] = -angle + 90;
-    }
-
-    public static void quaternionToRotationVector(float[] rOut, float[] q) {
-        float x = q[0], y = q[1], z = q[2], w = q[3];
-        float angle = 2.0f * (float) Math.acos(w);
-        float sinHalfAngle = (float) Math.sqrt(1.0f - w * w);
-
-        float axisX, axisY, axisZ;
-
-        if (sinHalfAngle < 0.0001f) {
-            axisX = x;
-            axisY = y;
-            axisZ = z;
-        } else {
-            axisX = x / sinHalfAngle;
-            axisY = y / sinHalfAngle;
-            axisZ = z / sinHalfAngle;
-        }
-
-        rOut[0] = (float) Math.toDegrees(axisX * angle);
-        rOut[1] = (float) Math.toDegrees(axisY * angle);
-        rOut[2] = (float) Math.toDegrees(axisZ * angle);
     }
 }

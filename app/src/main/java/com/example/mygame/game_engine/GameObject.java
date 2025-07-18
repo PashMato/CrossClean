@@ -1,12 +1,11 @@
 package com.example.mygame.game_engine;
 
-import static android.opengl.Matrix.scaleM;
-import static android.opengl.Matrix.translateM;
-
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
+import android.opengl.Matrix;
 
 import com.example.mygame.game_engine.Math.Vectors;
+import com.example.mygame.game_engine.shaders.Rect2D;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -15,25 +14,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameObject {
-    static List<GameObject> ALLGameObjects = new ArrayList<>();
-    static float dt = 0; // standard gameEngine dt
+    /// All the gameObjects that not in a group
+    protected static List<GameObject> AllGameObjects = new ArrayList<>();
 
+    /// Object Groups; each group (List<GameObjects>) has one model (and one texture)
+    /// this prevents OpenGL to switch textures for all the objects in the group which optimize run-time
+    protected static List<GameObject>[] objectGroups = new ArrayList[17];
+
+    private static boolean isInitializeStatic = false;
+
+    protected static float dt = 0; // standard gameEngine dt
+
+
+    // ------ GameObjects non static fields ------
+
+    public ObjectTypes objType;
+    private ObjectGroups objectGroup = ObjectGroups.NULL;
+
+
+    // Update function list
+    private final List<UpdateFunction> updateFunctions = new ArrayList<>();
+
+
+    // Object state
+    public boolean isActive = true; // Should draw & run update
+    public boolean isVisible = true; // Should draw the object (runs update whether it's ture or false)
     boolean didCallOnCreate = false;
 
-    // Position, Rotation & Scale
-    public float[] position;
-    public float[] rotation;
-    public float[] scale;
-
-    // Velocities for Position & Rotation
-    public float[] velocity;
-    public float[] angularVelocity;
 
     // Collisions
-    Model3D model3D;
-
-    ObjectTypes objType = ObjectTypes.Null;
-    float[] rectSize;
+    protected Rect2D rect2D;
+    protected Model3D model3D;
 
     // Buffers from the 3D model
     protected FloatBuffer vertexBuffer;
@@ -42,102 +53,87 @@ public class GameObject {
 
     protected int textureId;
 
+
+    // Position, Rotation & Scale
+    public float[] position; // current position (left, up, forward)
+    public float[] rotation;
+    public float[] scale;
+
+    // Old Position, Rotation & Scale to optimize run-time
+    private float[] positionOld = new float[] {Float.NaN, Float.NaN, Float.NaN};
+    private float[] rotationOld = new float[] {Float.NaN, Float.NaN, Float.NaN};
+    private float[] scaleOld = new float[] {Float.NaN, Float.NaN, Float.NaN};
+
+
     // RT (S) Matrices
-    protected float[] modelMatrix = new float[16];
-    protected float[] rotationMatrix = new float[16]; // R (S) - Rotation & Scale Matrix for the Normals
+    protected float[] modelMatrix = new float[16]; // T (S) R - Transform, Scale & Rotation to move the vertexes
+    protected float[] rotationScaleMatrix = new float[16]; // R (S) - Rotation & Scale Matrix for the Normals
+    protected float[] translationMat = new float[16]; // T - Transform to approve performance
 
-    private List<UpdateFunction> updateFunctions = new ArrayList<>();
 
-    public GameObject(float[] pos, float[] rectSize, Model3D m, ObjectTypes objType) {
-        this(pos, rectSize, m);
+    // Velocities for Position & Rotation
+    public float[] velocity;
+    public float[] angularVelocity;
 
+    public GameObject(float[] pos, Rect2D rect2D, Model3D m, ObjectTypes objType) {
+        initializeStatic();
+
+        // Set the object type & add to the correct object list
         this.objType = objType;
         switch (this.objType) {
             case DynamicGameObjects:
-            case RelativeToCameraGameObjects:
             case Background:
-                ALLGameObjects.add(this);
+                AllGameObjects.add(this);
                 break;
             case Camera:
             case Null:
             default:
                 break;
         }
-    }
 
-    private GameObject(float[] pos, float[] rectSize, Model3D m) {
-        position = pos;
-        rotation = new float[3];
-        scale = new float[] {1f, 1f, 1f};
-
-        velocity = new float[3];
-        angularVelocity = new float[3];
-
-        this.rectSize = rectSize;
+        this.rect2D = rect2D.clone();
         model3D = m;
+
         if (model3D == null) {
             model3D = Model3D.createEmpty();
         }
 
+        // Copy the position, rotation & scale
+        position = pos.clone();
+        rotation = new float[3];
+        scale = new float[] {1f, 1f, 1f};
+
         // Prepare and Load the vertex buffer
+        textureId = 0; // set for null
         if (m != null) {
             vertexBuffer = createDirectNativeOrderFloatBuffer(model3D.Triangles);
             normalBuffer = createDirectNativeOrderFloatBuffer(model3D.Normals);
             uvMapBuffer = createDirectNativeOrderFloatBuffer(model3D.UVMap);
-
-            textureId = 0; // set for null
         } else {
             vertexBuffer = null;
             uvMapBuffer = null;
         }
+
+
+        // Velocities
+        velocity = new float[3];
+        angularVelocity = new float[3];
     }
 
-    public boolean checkCollision(GameObject g) {
-        float[] dPos = g.position.clone();
-        Vectors.Subtract(dPos, position);
-        if (g.objType == ObjectTypes.RelativeToCameraGameObjects) {
-            Vectors.Add(dPos, CameraOH.cameraPos);
-        }
-
-        if (objType == ObjectTypes.RelativeToCameraGameObjects) {
-            Vectors.Subtract(dPos, CameraOH.cameraPos);
-        }
-        return (Math.abs(dPos[0]) <= (rectSize[0] + g.rectSize[0]) / 2f) &&
-            (Math.abs(dPos[1]) <= (rectSize[1] + g.rectSize[1]) / 2f);
-    }
-
+    /**
+     * a function that runs once when the object is created
+     * this is different from the constructor because the object can be created before the Camera (OpenGL)
+     * and this runs only after the camera has been created
+     */
     protected void onCreate() {
-        if (model3D.TextureBitmap != null) {
-            final int[] textureHandle = new int[1];
-            GLES30.glGenTextures(1, textureHandle, 0);
-            textureId = textureHandle[0];
-
-            if (textureId != 0) {
-                GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId);
-
-                // Load the bitmap into the base level (level 0)
-                GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, model3D.TextureBitmap, 0);
-
-                // Set texture parameters
-                GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR_MIPMAP_LINEAR);
-                GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR);
-                GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE);
-                GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE);
-
-                // Generate mipmaps
-                GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D);
-            }
-        }
-    }
-
-    protected void onDelete() {
-
+        setTexture();
     }
 
     /**
      * a function called each time we render a frame
+     * if the object type ObjectTypes.Background this will not run every frame to optimize run-time
      */
-    protected void update() {
+    protected void onUpdate() {
         if (!didCallOnCreate) {
             didCallOnCreate = true;
             onCreate();
@@ -145,16 +141,28 @@ public class GameObject {
 
         // Add Velocity & Angular Velocity
         float[] temp = velocity.clone();
-        Vectors.Multiply(temp, dt);
+        Vectors.Multiply(temp, getDt());
         Vectors.Add(position, temp);
 
         temp = angularVelocity.clone();
-        Vectors.Multiply(temp, dt);
+        Vectors.Multiply(temp, getDt());
         Vectors.Add(rotation, temp);
 
         // Calculate the new RT (S) Matrices
-        Vectors.setRtMatrix(modelMatrix, position, rotation, scale);
-        Vectors.setRtMatrix(rotationMatrix, new float[3], rotation, scale);
+        if (Vectors.any(position, positionOld)) {
+            Vectors.setRtMatrix(translationMat, position, null, null);
+        }
+
+        if (Vectors.any(rotation, rotationOld) || Vectors.any(scale, scaleOld)) {
+            Vectors.setRtMatrix(rotationScaleMatrix, null, rotation, scale);
+        }
+
+        if (Vectors.any(position, positionOld) || Vectors.any(rotation, rotationOld) || Vectors.any(scale, scaleOld)) {
+            System.arraycopy(position, 0, positionOld, 0, 3);
+            System.arraycopy(rotation, 0, rotationOld, 0, 3);
+            System.arraycopy(scale, 0, scaleOld, 0, 3);
+            Matrix.multiplyMM(modelMatrix, 0, translationMat, 0, rotationScaleMatrix, 0);
+        }
 
         // Call all the update functions
         for (UpdateFunction listener : updateFunctions) {
@@ -162,14 +170,188 @@ public class GameObject {
         }
     }
 
+
+    /**
+     *  This function runs when the object is deleted
+     */
+    protected void onDelete() {
+        vertexBuffer.clear();
+        normalBuffer.clear();
+        uvMapBuffer.clear();
+
+        vertexBuffer = null;
+        normalBuffer = null;
+        uvMapBuffer = null;
+
+        if (textureId != 0) // Delete the texture on OpenGL
+        {
+            int[] texture = {textureId};
+            GLES30.glDeleteTextures(1, texture, 0);
+            textureId = 0;
+        }
+    }
+
+    public boolean checkCollision(GameObject g) {
+        float[] temp = position.clone();
+        Vectors.Subtract(temp, g.position);
+
+        float sum = Vectors.Dot(temp, temp);
+        temp = getRect2D().getSize();
+        sum -= Vectors.Dot(temp, temp);
+
+        temp = g.getRect2D().getSize();
+        sum -= Vectors.Dot(temp, temp);
+
+
+        temp = getRect2D().getXYPos();
+        sum -= Vectors.Dot(temp, temp);
+
+        temp = g.getRect2D().getXYPos();
+        sum -= Vectors.Dot(temp, temp);
+
+        if (sum > 0) {
+            return false;
+        }
+
+        float[] rtMatrix = new float[16];
+        temp = new float[16];
+
+        Vectors.setCameraMatrix(temp, position, rotation);
+        Matrix.multiplyMM(rtMatrix, 0, temp, 0, g.modelMatrix, 0);
+
+        Rect2D rect = g.getRect2D();
+        float[] shift = Rect2D.transformPoints(rtMatrix, new float[][] {rect.getXYPos().clone()})[0];
+        Vectors.Subtract(shift, rect2D.getXYPos());
+
+        float[][] new_corners = Rect2D.transformPoints(rtMatrix, rect.getCorners());
+
+        boolean any = false;
+        for (float[] newCorner : new_corners) {
+            Vectors.Add(newCorner, shift);
+            any |= rect.dotInRect(newCorner, false);
+        }
+
+        return any;
+    }
+
+    /**
+     * This function add an update listener
+     * @param listener the function that we want to call on the update
+     */
     public void addListener(UpdateFunction listener) {
+        if (updateFunctions.contains(listener)) {
+            return;
+        }
+
         updateFunctions.add(listener);
     }
 
-    public float getDt() {
+    /**
+     * This function removes an update listener
+     * @param listener the function that we want to remove from the update
+     */
+    public void removeListener(UpdateFunction listener) {
+        updateFunctions.remove(listener);
+    }
+
+    public ObjectGroups getObjectGroup() {
+        return objectGroup;
+    }
+
+    public void setObjectGroup(ObjectGroups og) {
+        // Add and remove from the correct list so we wouldn't save the object twice
+        if (objectGroup != ObjectGroups.NULL) {
+            objectGroups[objectGroup.ordinal()].remove(this);
+        } else {
+            AllGameObjects.remove(this);
+        }
+
+        objectGroup = og;
+        objectGroups[objectGroup.ordinal()].add(this);
+    }
+
+    public Rect2D getRect2D() {
+        return rect2D.clone();
+    }
+
+    /**
+     * this function can be called once a camera has been created
+     */
+    protected void setTexture() {
+        // make sure everything we needs exists
+        if (model3D == null || model3D.TextureBitmap == null) {
+            return;
+        }
+
+        // get a place from OpenGL for the texture
+        int[] textureHandle = new int[1];
+        GLES30.glGenTextures(1, textureHandle, 0);
+        textureId = textureHandle[0];
+
+        if (textureId == 0) { // make sure we didn't got null
+            return;
+        }
+
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId);
+
+        // Load the bitmap into the base level (level 0)
+        GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, model3D.TextureBitmap, 0);
+
+        // Set texture parameters
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR_MIPMAP_LINEAR);
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR);
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE);
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE);
+
+        // Generate mipmaps
+        GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D);
+
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
+    }
+
+
+    /**
+     * this function deletes a GameObject
+     * @param g the gameObject we want to delete
+     */
+    public static void Delete(GameObject g) {
+        g.onDelete();
+        if (g.objectGroup == ObjectGroups.NULL) {
+            AllGameObjects.remove(g);
+        } else {
+            objectGroups[g.objectGroup.ordinal()].remove(g);
+        }
+    }
+
+    /**
+     * @return The time passed from the last frame in seconds as a float
+     */
+    public static float getDt() {
         return dt;
     }
 
+    /**
+     * this function initialize all of the static fields
+     **/
+    private static void initializeStatic() {
+        if (isInitializeStatic) {
+            return;
+        }
+        isInitializeStatic = true;
+
+        for (int i = 0; i < objectGroups.length; i++) {
+            if (objectGroups[i] == null) {
+                objectGroups[i] = new ArrayList<>();
+            }
+        }
+    }
+
+
+    /**
+     * create a float buffer for openGL that can be "moved" to the GPU
+     * @param array the content we want to save in the buffer
+     * @return a buffer object that represents the array
+     */
     protected static FloatBuffer createDirectNativeOrderFloatBuffer(float[] array) {
         // Allocate a direct ByteBuffer with the desired capacity (in bytes)
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(array.length * Float.BYTES);
@@ -180,10 +362,6 @@ public class GameObject {
         floatBuffer.position(0);
 
         return floatBuffer;
-    }
-
-    public static void Delete(GameObject g) {
-        ALLGameObjects.remove(g);
     }
 }
 
