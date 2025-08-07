@@ -1,11 +1,10 @@
 package com.example.cross_clean.ui;
 
-import static androidx.core.content.ContextCompat.startActivity;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,10 +13,9 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.example.cross_clean.R;
-import com.example.cross_clean.cross_clean.CrossCleanGame;
 import com.example.cross_clean.cross_clean.OnDeleteFunction;
+import com.example.cross_clean.cross_clean.records.AppDatabase;
 import com.example.cross_clean.cross_clean.records.Record;
-import com.example.cross_clean.cross_clean.records.RecordsDao;
 
 import java.util.Date;
 
@@ -27,8 +25,6 @@ public class GameOverView extends FrameLayout {
     private Context context = null;
     private TextView score;
     private TextView bestScore;
-    private Button restart;
-    private Button mainManu;
 
     public OnDeleteFunction onDeleteFunction;
 
@@ -48,8 +44,8 @@ public class GameOverView extends FrameLayout {
         score = findViewById(R.id.score_text);
         bestScore = findViewById(R.id.best_score_text);
 
-        restart = findViewById(R.id.restart_button);
-        mainManu = findViewById(R.id.main_manu_button);
+        Button restart = findViewById(R.id.restart_button);
+        Button mainManu = findViewById(R.id.main_manu_button);
 
         restart.setOnClickListener(new OnClickListener() {
             @Override
@@ -90,6 +86,12 @@ public class GameOverView extends FrameLayout {
         if (score != null && bestScore != null && bestRecord != null) {
             bestScore.setText(context.getString(R.string.best_score) + " " + (bestRecord == null ? -1 : bestRecord.score));
             score.setText(context.getString(R.string.score) + " " + _score);
+
+            SharedPreferences prefs = context.getSharedPreferences("my_prefs",
+                    Context.MODE_PRIVATE);
+
+            AppDatabase.getInstance(context).recordsDao()
+                    .insert(new Record(prefs.getString("owner_name", "You"), _score, new Date()));
         }
         });
     }

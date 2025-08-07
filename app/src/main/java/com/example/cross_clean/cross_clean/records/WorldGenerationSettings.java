@@ -9,8 +9,6 @@ public class WorldGenerationSettings {
     /// Scene ///
     public float deleteDistance = 75f;
     public float generateDis = 75f;
-    public float generateCarDis = 30f;
-
 
     public float laneWidth = 1f;
     public int maxLaneNumber = 5;

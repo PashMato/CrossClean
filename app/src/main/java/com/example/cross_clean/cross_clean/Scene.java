@@ -24,7 +24,7 @@ public class Scene {
 
     private final Random random;
 
-    private WorldGenerationSettings settings;
+    public WorldGenerationSettings settings;
 
     public Scene(Context c) {
         random = new Random();

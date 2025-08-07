@@ -12,4 +12,9 @@
     <string name="best_score">Best Score:</string>
     <string name="date">Date:</string>
     <string name="owner">Owner:</string>
+    <string name="apply">Apply</string>
+    <string name="cancel">Cancel</string>
+    <string name="owner_name">Owner Name</string>
+    <string name="show_tutorial">Show Tutorial</string>
+    <string name="settings">Settings</string>
 </resources>

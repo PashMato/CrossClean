@@ -1,11 +1,8 @@
 package com.example.cross_clean.cross_clean;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -15,20 +12,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.cross_clean.R;
 import com.example.cross_clean.cross_clean.records.AppDatabase;
-import com.example.cross_clean.cross_clean.records.Record;
 import com.example.cross_clean.game_engine.CameraOH;
 import com.example.cross_clean.game_engine.GameObject;
 import com.example.cross_clean.game_engine.Math.Vectors;
 import com.example.cross_clean.game_engine.Model3D;
 import com.example.cross_clean.ui.GameOverView;
-import com.example.cross_clean.ui.LoadingActivity;
 import com.example.cross_clean.ui.LoadingView;
 
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class CrossCleanGame extends AppCompatActivity {
     GLSurfaceView glView;
@@ -119,16 +111,6 @@ public class CrossCleanGame extends AppCompatActivity {
         super.onResume();
         glView.onResume();
         compass.start();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        new Thread(() -> {
-            AppDatabase.getInstance(CrossCleanGame.this)
-                    .recordsDao()
-                    .insert(new Record("You", -1, new Date()));
-        }).start();
     }
 
     private void onCameraUpdate(GameObject g) {

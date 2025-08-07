@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">CrossClean</string>
+    <string name="score">נקודות:</string>
+    <string name="cross_clean">קרוס קלין</string>
+    <string name="play">שחק</string>
+    <string name="how_to_play">איך לשחק</string>
+    <string name="records">שיאים</string>
+    <string name="loading">טוען...</string>
+    <string name="game_over">המשחק נגמר</string>
+    <string name="restart">התחל מחדש</string>
+    <string name="main_manu">תפריט ראשי</string>
+    <string name="best_score">השיא הטוב ביותר:</string>
+    <string name="date">תאריך:</string>
+    <string name="owner">בעלים:</string>
+    <string name="apply">אשר</string>
+    <string name="cancel">בטל</string>
+    <string name="owner_name">שם הבעלים</string>
+    <string name="show_tutorial">הצג מדריך</string>
+    <string name="settings">הגדרות</string>
+</resources>
