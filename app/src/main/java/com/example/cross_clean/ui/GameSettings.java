@@ -76,8 +76,7 @@ public class GameSettings extends FrameLayout {
             setVisibility(View.VISIBLE);
         });
 
-        SharedPreferences prefs = context.getSharedPreferences("my_prefs",
-                MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences("my_prefs", MODE_PRIVATE);
 
         ownerEt.setText(prefs.getString("owner_name", "You"));
         showTutCb.setChecked(prefs.getBoolean("show_tutorials", true));
