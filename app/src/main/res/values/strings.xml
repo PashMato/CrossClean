@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">CrossClean</string>
+    <string name="score">Score:</string>
+    <string name="cross_clean">Cross Clean</string>
+    <string name="play">Play</string>
+    <string name="how_to_play">How To Play</string>
+    <string name="records">Records</string>
+    <string name="loading">Loading...</string>
+    <string name="game_over">Game Over</string>
+    <string name="restart">Restart</string>
+    <string name="main_manu">Main Manu</string>
+    <string name="best_score">Best Score:</string>
+    <string name="date">Date:</string>
+    <string name="owner">Owner:</string>
+    <string name="apply">Apply</string>
+    <string name="cancel">Cancel</string>
+    <string name="owner_name">Owner Name</string>
+    <string name="show_tutorial">Tutorial</string>
+    <string name="settings">Settings</string>
+    <string name="next">Next</string>
+
+    <string-array name="tutorial_steps">
+        <item>Turn around to turn the camera</item>
+        <item>Jump to move forward</item>
+        <item>Good Luck!!!</item>
+    </string-array>
+</resources>
