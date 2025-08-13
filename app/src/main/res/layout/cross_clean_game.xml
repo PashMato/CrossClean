@@ -46,7 +46,6 @@
     <com.example.cross_clean.cross_clean.ui.TutorialFragment
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
         android:layout_gravity="center"
         />
 
@@ -60,7 +59,6 @@
     <com.example.cross_clean.ui.LoadingView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
         android:id="@+id/loading_view"
         />
 
