@@ -5,7 +5,7 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,8 +29,8 @@ public class CrossCleanGame extends AppCompatActivity {
 
     Compass compass;
 
-    Button Step;
     TextView ScoreText;
+    ImageView ManuButton;
 
     private int score;
     boolean isDead;
@@ -50,17 +50,18 @@ public class CrossCleanGame extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cross_clean_game);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        );
 
         ScoreText = findViewById(R.id.score_text);
-        Step = findViewById(R.id.step);
-        Step.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (robot.requestMove()) {
-                    setScore(score + 1);
-                }
-            }
-        });
+        ManuButton = findViewById(R.id.manu_button);
 
         LoadingView loadingView = findViewById(R.id.loading_view);
         loadingView.start();  // Show loading
@@ -93,10 +94,21 @@ public class CrossCleanGame extends AppCompatActivity {
 
         robot = new Player(new float[] {0f, 0f, -1f},
                 Model3D.loadModelById(this, R.raw.i_robot, R.raw.i_robot_texture),
-                1f); // TODO: set this to real laneWidth
+                scene.settings.laneWidth);
         robot.onCollisionFunction = this::onPlayerCollision;
 
+        String name = getSharedPreferences("my_prefs", MODE_PRIVATE).getString("owner_name", "You");
+        robot.easterEgg = name.equals("Pashmato");
+
         compass = new Compass(this);
+        compass.start();
+
+        ManuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                robot.onOpenManu();
+            }
+        });
     }
 
     @Override
@@ -114,11 +126,13 @@ public class CrossCleanGame extends AppCompatActivity {
     }
 
     private void onCameraUpdate(GameObject g) {
-        if (isDead) {
+        if (compass.isJumping && robot.requestMove()) {
+            setScore(score + 1);
+        }
+        if (robot.isDead) {
             Vectors.lookAt(g.position, g.rotation, robot.position, 90 - CameraOH.cameraRot[1] + a * CameraOH.getDt(), 1.5f);
         } else {
-            // TODO: implement the compass thing
-            Vectors.lookAt(g.position, g.rotation, robot.position, 90 - CameraOH.cameraRot[1] + a * CameraOH.getDt(), 1.5f);
+            Vectors.lookAt(g.position, g.rotation, robot.position, compass.orientation, 1.5f);
         }
 
         if (robot.position[2] < 0 && scene.startPos >= 0) {

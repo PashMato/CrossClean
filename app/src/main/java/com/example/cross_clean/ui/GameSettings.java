@@ -51,26 +51,20 @@ public class GameSettings extends FrameLayout {
 
                 editor.putString("owner_name", ownerEt.getText().toString());
                 editor.putBoolean("show_tutorials", showTutCb.isChecked());
-                editor.apply(); // or editor.commit();
+                editor.apply();
 
-                post(() -> {
-                    setVisibility(View.GONE);
-                });
+                post(() -> setVisibility(View.GONE));
             }
         });
 
         cancelBt.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                post(() -> {
-                    setVisibility(View.GONE);
-                });
+                post(() -> setVisibility(View.GONE));
             }
         });
 
-        post(() -> {
-            setVisibility(View.GONE);
-        });
+        post(() -> setVisibility(View.GONE));
     }
 
     public void show() {
@@ -82,8 +76,7 @@ public class GameSettings extends FrameLayout {
             setVisibility(View.VISIBLE);
         });
 
-        SharedPreferences prefs = context.getSharedPreferences("my_prefs",
-                MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences("my_prefs", MODE_PRIVATE);
 
         ownerEt.setText(prefs.getString("owner_name", "You"));
         showTutCb.setChecked(prefs.getBoolean("show_tutorials", true));

@@ -1,12 +1,9 @@
 package com.example.cross_clean.game_engine;
 
-import android.graphics.Color;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
-import android.util.Log;
 
-import com.example.cross_clean.cross_clean.Lane;
 import com.example.cross_clean.game_engine.Math.Vectors;
 import com.example.cross_clean.game_engine.shaders.Rect2D;
 
@@ -36,7 +33,9 @@ public class GameObject {
 
 
     // Object state
-    public boolean isActive = true; // Should draw & run update
+
+    // this prevents a very annoying bug (update is called before the end of the compiler
+    public boolean isActive = false; // Should draw & run update
     boolean didCallOnCreate = false;
 
 

@@ -11,15 +11,15 @@ public class WorldGenerationSettings {
     public float generateDis = 75f;
 
     public float laneWidth = 1f;
-    public int maxLaneNumber = 5;
+    public int maxLaneNumber = 6;
     public int minLaneNumber = 2;
 
-    public int maxGrassNumber = 4;
-    public int minGrassNumber = 1;
+    public final int maxGrassNumber = 4;
+    public final int minGrassNumber = 1;
 
     /// Cars ///
-    public float baseCarSpawnInterval = 4;         // Minimum time between car spawns
-    public float carSpawnIntervalVariance = 4;     // Maximum additional random time added to base interval
+    public float baseCarSpawnInterval = 4;               // Minimum time between car spawns
+    public final float carSpawnIntervalVariance = 4;     // Maximum additional random time added to base interval
 
 
     public float laneMaxVelocity = 12;

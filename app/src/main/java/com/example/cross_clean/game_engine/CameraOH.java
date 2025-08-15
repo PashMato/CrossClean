@@ -90,6 +90,8 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
 
         vertexShaderCode = getShaderCode(context, R.raw.vertex_shader);
         fragmentShaderCode = getShaderCode(context, R.raw.fragment_shader);
+
+        isActive = true;
     }
 
     @Override
@@ -231,6 +233,10 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
         program = -1;
     }
     protected void draw(GameObject g) {
+        if (g.vertexBuffer == null || g.normalBuffer == null || g.uvMapBuffer == null) { // this object's isn't valid
+            return;
+        }
+
         // Bind texture
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, g.textureId);
 
@@ -252,7 +258,7 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
 
     protected void handleObjectGroups() {
         GameObject g;
-        int length = 0;
+        int length;
         for (List<GameObject> group : objectGroups) {
 
             if (group == null || group.isEmpty()) {

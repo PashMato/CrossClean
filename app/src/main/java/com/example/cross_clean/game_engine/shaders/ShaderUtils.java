@@ -9,7 +9,7 @@ public class ShaderUtils {
      * if failed will return 0
      * @param type the shader type (GLES30.GL_FRAGMENT_SHADER, GLES30.GL_VERTEX_SHADER)
      * @param shaderCode the actual shader code as a String
-     * @return
+     * @return the shader cade
      */
     public static int loadShader(int type, String shaderCode) {
         int shader = GLES30.glCreateShader(type);
