@@ -88,7 +88,7 @@ public class GameOverView extends FrameLayout {
                 SharedPreferences prefs = context.getSharedPreferences("my_prefs",
                         Context.MODE_PRIVATE);
 
-                if (_score == 0) {
+                if (_score > 0) {
                     AppDatabase.getInstance(context).recordsDao()
                             .insert(new Record(prefs.getString("owner_name", "You"), _score, new Date()));
                 }
