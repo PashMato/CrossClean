@@ -81,10 +81,6 @@ public class Scene {
         }
     }
 
-    public void onDelete() {
-        // TODO: implement and override this
-    }
-
     private void GenerateCars(GameObject gameObject) {
         Lane g = (Lane) gameObject;
 
@@ -118,6 +114,7 @@ public class Scene {
             car.addListener(this::CarGC);
 
             car.setObjectGroup(ObjectGroups.fromValue(7 + carModelIndex));
+            car.isActive = true;
 
             Log.i("LaneUpdate", "Created a car at lane at Z: " + g.position[2]);
         }
@@ -179,6 +176,7 @@ public class Scene {
                 treeModel = settings.treesModels[treeModelIndex];
                 Log.i("GenerateTrees", "Creating tree at (" + pos[0] + ", " + pos[1] + ", " + pos[2] + ")");
                 tree = new GameObject(pos, new Rect2D(), treeModel, ObjectTypes.Background);
+                tree.isActive = true;
 
                 tree.setObjectGroup(treeModelIndex == 0 ? ObjectGroups.OBJECT_GROUP_5 : ObjectGroups.OBJECT_GROUP_6);
                 tree.addListener(this::TreeGC);

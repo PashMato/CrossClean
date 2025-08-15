@@ -1,0 +1,62 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/game_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Tutorial Overlay -->
+    <View
+        android:id="@+id/tutorial_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#AA000000"
+    android:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/tutorial_text_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        android:padding="24dp">
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            />
+
+        <TextView
+            android:id="@+id/tutorial_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:layout_weight="1"/>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            />
+
+        <Button
+            android:id="@+id/next_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/next"
+            android:textColor="#DDFFFFFF"
+            android:background="@android:color/transparent"
+            android:textSize="16sp"
+            android:layout_marginTop="16dp"
+            android:layout_weight="1"/>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            />
+    </LinearLayout>
+</FrameLayout>

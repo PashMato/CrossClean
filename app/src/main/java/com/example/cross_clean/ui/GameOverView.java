@@ -73,9 +73,7 @@ public class GameOverView extends FrameLayout {
 
         this.context = context;
 
-        post(() -> {
-            setVisibility(View.GONE);
-        });
+        post(() -> setVisibility(View.GONE));
     }
 
     @SuppressLint("SetTextI18n")
@@ -83,16 +81,18 @@ public class GameOverView extends FrameLayout {
         post(() -> {
             setVisibility(View.VISIBLE);
 
-        if (score != null && bestScore != null && bestRecord != null) {
-            bestScore.setText(context.getString(R.string.best_score) + " " + (bestRecord == null ? -1 : bestRecord.score));
-            score.setText(context.getString(R.string.score) + " " + _score);
+            if (score != null && bestScore != null) {
+                bestScore.setText(context.getString(R.string.best_score) + " " + (bestRecord == null ? 0 : bestRecord.score));
+                score.setText(context.getString(R.string.score) + " " + _score);
 
-            SharedPreferences prefs = context.getSharedPreferences("my_prefs",
-                    Context.MODE_PRIVATE);
+                SharedPreferences prefs = context.getSharedPreferences("my_prefs",
+                        Context.MODE_PRIVATE);
 
-            AppDatabase.getInstance(context).recordsDao()
-                    .insert(new Record(prefs.getString("owner_name", "You"), _score, new Date()));
-        }
+                if (_score == 0) {
+                    AppDatabase.getInstance(context).recordsDao()
+                            .insert(new Record(prefs.getString("owner_name", "You"), _score, new Date()));
+                }
+            }
         });
     }
 }

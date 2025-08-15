@@ -40,7 +40,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecordsAdapter.ItemView
         Record item = records.get(position);
         holder.id = item.id;
         holder.scoreTV.setText(context.getString(R.string.score) + " " + item.score);
-        holder.ownerTV.setText(context.getString(R.string.owner) + " " + item.owner);
+        holder.ownerTV.setText(item.owner);
         holder.dateTV.setText(context.getString(R.string.date) + " " + item.date);
     }
 

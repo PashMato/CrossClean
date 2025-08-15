@@ -12,6 +12,7 @@ public class Player extends GameObject {
     float currentMovingTime;
     boolean isMoving;
     boolean isDead;
+    boolean easterEgg = false;
 
     CollisionFunction onCollisionFunction = null;
 
@@ -19,6 +20,7 @@ public class Player extends GameObject {
         super(pos, new Rect2D(m), m, ObjectTypes.DynamicGameObjects);
 
         laneWidth = lane_width;
+        isActive = true;
     }
 
     @Override
@@ -70,16 +72,24 @@ public class Player extends GameObject {
     }
 
     public void onCollision() {
-        if (isDead) {
+        if (isDead || easterEgg) {
             return;
         }
 
-        isDead = true;
         scale[1] = 0.1f;
+        onOpenManu();
+    }
+
+    /**
+     * This functions is called ether when the player hits a car or
+     * the manu button is pressed
+     */
+    public void onOpenManu() {
+        isDead = true;
         velocity[2] = 0;
         isMoving = false;
 
-        if ( onCollisionFunction != null) {
+        if (onCollisionFunction != null) {
             onCollisionFunction.onCollision(this);
         }
     }

@@ -19,9 +19,9 @@ import com.example.cross_clean.ui.records_table.RecordsTable;
 public class MainManu extends AppCompatActivity {
     Button playBN;
     Button recordsBN;
-    Button howToBN;
     ImageView settings;
     GameSettings gameSettings;
+    RecordsTable recordsTable;
 
 
     ///  OpenGL background ///
@@ -38,13 +38,24 @@ public class MainManu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_manu);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        );
 
         playBN = findViewById(R.id.play_bn);
         recordsBN = findViewById(R.id.records_bn);
-        howToBN = findViewById(R.id.how_to_bn);
 
         settings = findViewById(R.id.setting_button);
         gameSettings = findViewById(R.id.setting);
+
+        recordsTable = findViewById(R.id.records_table);
+        recordsTable.mainManuParent = findViewById(R.id.main_manu_parant);
 
         playBN.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,15 +70,7 @@ public class MainManu extends AppCompatActivity {
         recordsBN.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent recordsTable = new Intent(MainManu.this, RecordsTable.class);
-                startActivity(recordsTable);
-            }
-        });
-
-        howToBN.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: show how to play the game
+                recordsTable.show();
             }
         });
 

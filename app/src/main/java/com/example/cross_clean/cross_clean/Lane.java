@@ -7,11 +7,9 @@ import com.example.cross_clean.game_engine.CameraOH;
 import com.example.cross_clean.game_engine.GameObject;
 import com.example.cross_clean.game_engine.Math.Vectors;
 import com.example.cross_clean.game_engine.Model3D;
-import com.example.cross_clean.game_engine.ObjectGroups;
 import com.example.cross_clean.game_engine.ObjectTypes;
 import com.example.cross_clean.game_engine.shaders.Rect2D;
 
-import java.util.ArrayDeque;
 import java.util.Random;
 
 public class Lane extends GameObject {
@@ -27,7 +25,6 @@ public class Lane extends GameObject {
 
     public Lane(float[] pos, Model3D m, boolean is_road, WorldGenerationSettings s) {
         super(pos, new Rect2D(m), m, is_road ? ObjectTypes.DynamicGameObjects : ObjectTypes.Background);
-
         isRoad = is_road;
 
         settings = s;
@@ -36,6 +33,8 @@ public class Lane extends GameObject {
         direction = (random.nextInt(2) - 0.5f) * 2f;
         carsVelocity = settings.laneMinVelocity +
                 random.nextFloat() * (settings.laneMaxVelocity - settings.laneMinVelocity);
+
+        isActive = true;
     }
 
     @Override
@@ -50,6 +49,7 @@ public class Lane extends GameObject {
         if (dis[2] > -settings.deleteDistance) {
             return;
         }
+
         Log.i("ChunkGC", "Deleted Chunk at lane at Z: " + g.position[2]);
         GameObject.Delete(g);
     }
