@@ -3,14 +3,13 @@ package com.example.cross_clean.cross_clean;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.cross_clean.cross_clean.records.WorldGenerationSettings;
 import com.example.cross_clean.game_engine.CameraOH;
 import com.example.cross_clean.game_engine.GameObject;
 import com.example.cross_clean.game_engine.Math.Vectors;
 import com.example.cross_clean.game_engine.Model3D;
 import com.example.cross_clean.game_engine.ObjectGroups;
 import com.example.cross_clean.game_engine.ObjectTypes;
-import com.example.cross_clean.game_engine.shaders.Rect2D;
+import com.example.cross_clean.game_engine.Rect2D;
 
 import java.util.ArrayDeque;
 import java.util.Random;

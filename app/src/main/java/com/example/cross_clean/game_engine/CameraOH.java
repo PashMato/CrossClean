@@ -7,7 +7,6 @@ import android.opengl.Matrix;
 
 import com.example.cross_clean.R;
 import com.example.cross_clean.game_engine.Math.Vectors;
-import com.example.cross_clean.game_engine.shaders.Rect2D;
 import com.example.cross_clean.game_engine.shaders.ShaderUtils;
 
 import java.io.BufferedReader;
@@ -69,8 +68,14 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
     float width = 0;
     float height = 0;
 
-    public CameraOH(float[] p, float[] v, Context context) {
-        super(p, new Rect2D(), null, ObjectTypes.Camera);
+    /**
+     * creates a camera object
+     * @param pos the camera's position
+     * @param vel the camera's velocity
+     * @param context the app's context
+     */
+    public CameraOH(float[] pos, float[] vel, Context context) {
+        super(pos, new Rect2D(), null, ObjectTypes.Camera);
 
         // Set the GameObjects list
         AllGameObjects = new ArrayList<>();
@@ -83,7 +88,7 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
         }
 
         // Setting up the camera variables
-        velocity = v;
+        velocity = vel;
         rotation[1] = 0;
 
         last_time = System.nanoTime();
@@ -237,9 +242,6 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
             return;
         }
 
-        // Bind texture
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, g.textureId);
-
         // Enable & set aPosition
         GLES30.glVertexAttribPointer(positionHandle, 3, GLES30.GL_FLOAT, false, 0, g.vertexBuffer);
 
@@ -249,13 +251,13 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
         // Enable & set aColor
         GLES30.glVertexAttribPointer(uvHandle, 2, GLES30.GL_FLOAT, false, 0, g.uvMapBuffer);
 
-        GLES30.glUniformMatrix4fv(modelMatrixHandler, 1, false, g.modelMatrix, 0);
-        GLES30.glUniformMatrix4fv(rotMatrixHandle, 1, false, g.rotationScaleMatrix, 0);
-
-        // Draw the triangle
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, g.model3D.Triangles.length / 3);
+        // re-use some lines of code
+        drawInObjectGroup(g.modelMatrix, g.rotationScaleMatrix, g.textureId, g.model3D.Triangles.length / 3);
     }
 
+    /**
+     * this function draws (and calls update) all of the ObjectGroups
+     */
     protected void handleObjectGroups() {
         GameObject g;
         int length;
@@ -302,8 +304,17 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
             }
         }
     }
+
+    /**
+     * loads the model-matrix and the rotation-scale-matrix and draws
+     * @param modelMatrixGO the model matrix of the GameObject
+     * @param rotationScaleMatrixGO the rotation-scale-matrix of the GameObject (used for normals)
+     * @param textureIdGO the texture id of the GameObject
+     * @param length the number of triangles
+     */
     protected void drawInObjectGroup(float[] modelMatrixGO, float[] rotationScaleMatrixGO, int textureIdGO, int length) {
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureIdGO); // sadly we have to rebind the texture every frame because elsewhere OpenGl rewrites it
+
         GLES30.glUniformMatrix4fv(modelMatrixHandler, 1, false, modelMatrixGO, 0);
         GLES30.glUniformMatrix4fv(rotMatrixHandle, 1, false, rotationScaleMatrixGO, 0);
 
@@ -311,7 +322,7 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
         GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, length);
     }
 
-    private static String getShaderCode(Context context, int id) {
+    private static String getShaderCode(Context context, int id) { // loads the shader code
         try {
             InputStream inputStream = context.getResources().openRawResource(id);
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -328,7 +339,7 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
         }
     }
 
-    private void loadShaders() {
+    private void loadShaders() { // load the shaders
         clearShaders();
 
         // Use shader program
@@ -378,7 +389,7 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
         GLES30.glUniform3fv(lightDirHandle, 1, lightDirection, 0);
     }
 
-    private void clearShaders() {
+    private void clearShaders() { // deletes the shaders
         // Clean up
         GLES30.glDisableVertexAttribArray(positionHandle);
         GLES30.glDisableVertexAttribArray(normalHandle);

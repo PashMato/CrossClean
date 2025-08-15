@@ -21,6 +21,7 @@ public class GameSettings extends FrameLayout {
     Button cancelBt;
     EditText ownerEt;
     CheckBox showTutCb;
+    CheckBox accModCb; // accessibility mode
 
     public GameSettings(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -32,6 +33,11 @@ public class GameSettings extends FrameLayout {
         init(context);
     }
 
+
+    /**
+     * this method is called from the constructor and it sets the base parameters
+     * @param context the app's context
+     */
     private void init(Context context) {
         LayoutInflater.from(context).inflate(R.layout.setting_frame, this, true);
         this.context = context;
@@ -41,6 +47,7 @@ public class GameSettings extends FrameLayout {
 
         ownerEt = findViewById(R.id.owner_edit_text);
         showTutCb = findViewById(R.id.show_tutorial);
+        accModCb = findViewById(R.id.accessibility_mode);
 
 
         applyBt.setOnClickListener(new OnClickListener() {
@@ -49,8 +56,13 @@ public class GameSettings extends FrameLayout {
                 SharedPreferences.Editor editor = context.getSharedPreferences("my_prefs",
                         MODE_PRIVATE).edit();
 
+                // turn on the tutorial if the player change from/to accessibility mode
+                boolean isAccChanged = accModCb.isChecked() != context.getSharedPreferences("my_prefs",
+                        MODE_PRIVATE).getBoolean("accessibility_mode", false);
+
                 editor.putString("owner_name", ownerEt.getText().toString());
-                editor.putBoolean("show_tutorials", showTutCb.isChecked());
+                editor.putBoolean("show_tutorials", showTutCb.isChecked() || isAccChanged);
+                editor.putBoolean("accessibility_mode", accModCb.isChecked());
                 editor.apply();
 
                 post(() -> setVisibility(View.GONE));
@@ -80,5 +92,6 @@ public class GameSettings extends FrameLayout {
 
         ownerEt.setText(prefs.getString("owner_name", "You"));
         showTutCb.setChecked(prefs.getBoolean("show_tutorials", true));
+        accModCb.setChecked(prefs.getBoolean("accessibility_mode", false));
     }
 }

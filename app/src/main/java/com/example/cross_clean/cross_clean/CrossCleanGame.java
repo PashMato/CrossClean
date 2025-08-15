@@ -3,6 +3,7 @@ package com.example.cross_clean.cross_clean;
 import android.annotation.SuppressLint;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -39,6 +40,8 @@ public class CrossCleanGame extends AppCompatActivity {
 
     float a = 10;
 
+    boolean accessibilityMode;
+
     @SuppressLint("SetTextI18n")
     private void setScore(int scoreValue) {
         this.score = scoreValue;
@@ -51,7 +54,7 @@ public class CrossCleanGame extends AppCompatActivity {
         setContentView(R.layout.cross_clean_game);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
+        decorView.setSystemUiVisibility( // Make the screen full screen
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -60,6 +63,7 @@ public class CrossCleanGame extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         );
 
+        // load views
         ScoreText = findViewById(R.id.score_text);
         ManuButton = findViewById(R.id.manu_button);
 
@@ -87,7 +91,7 @@ public class CrossCleanGame extends AppCompatActivity {
 
         new Timer().schedule(new TimerTask() {
             @Override
-            public void run() { // Activate the camera
+            public void run() { // Activate the camera & give time for loading
                 loadingView.stop();
             }
         }, 3000);
@@ -103,10 +107,14 @@ public class CrossCleanGame extends AppCompatActivity {
         compass = new Compass(this);
         compass.start();
 
+        accessibilityMode = getSharedPreferences("my_prefs", MODE_PRIVATE).
+                getBoolean("accessibility_mode", false);
+
+
         ManuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                robot.onOpenManu();
+                robot.onOpenManu(false);
             }
         });
     }
@@ -125,11 +133,21 @@ public class CrossCleanGame extends AppCompatActivity {
         compass.start();
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) { // for accessibility mode
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (accessibilityMode && robot.requestMove()) {
+                setScore(score + 1);
+            }
+        }
+        return super.onTouchEvent(event);
+    }
+
     private void onCameraUpdate(GameObject g) {
-        if (compass.isJumping && robot.requestMove()) {
+        if (!accessibilityMode && compass.isJumping && robot.requestMove()) { // if Jumping
             setScore(score + 1);
         }
-        if (robot.isDead) {
+        if (robot.isDead) { // Camera rotation
             Vectors.lookAt(g.position, g.rotation, robot.position, 90 - CameraOH.cameraRot[1] + a * CameraOH.getDt(), 1.5f);
         } else {
             Vectors.lookAt(g.position, g.rotation, robot.position, compass.orientation, 1.5f);
@@ -146,16 +164,11 @@ public class CrossCleanGame extends AppCompatActivity {
     }
 
     private void onPlayerCollision(GameObject g) {
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() { // Activate the camera
-                GameOverView gameOverView = findViewById(R.id.game_over_layout);
-                gameOverView.bestRecord = AppDatabase.getInstance(CrossCleanGame.this).recordsDao().getRecordWithMaxScore();
+            GameOverView gameOverView = findViewById(R.id.game_over_layout);
+            gameOverView.bestRecord = AppDatabase.getInstance(CrossCleanGame.this).recordsDao().getRecordWithMaxScore();
 
-                gameOverView.onDeleteFunction = CrossCleanGame.this::onDelete;
+            gameOverView.onDeleteFunction = CrossCleanGame.this::onDelete;
 
-                gameOverView.show(score);
-            }
-        }, 1000);
+            gameOverView.show(score);
     }
 }

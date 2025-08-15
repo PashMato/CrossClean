@@ -19,10 +19,18 @@
     <string name="show_tutorial">תידרוך</string>
     <string name="settings">הגדרות</string>
     <string name="next">הבא</string>
+    <string name="accessibility_mode">Accessibility Mode</string>
 
     <string-array name="tutorial_steps">
         <item>הסתובב כדי לסובב את המצלמה</item>
         <item>קפוץ כדי להתקדם קדימה</item>
         <item>בהצלחה!!!</item>
     </string-array>
+
+    <string-array name="tutorial_steps_acc">
+        <item>הסתובב כדי לסובב את המצלמה</item>
+        <item>גע במסך כדי להתקדם קדימה</item>
+        <item>בהצלחה!!!</item>
+    </string-array>
+
 </resources>

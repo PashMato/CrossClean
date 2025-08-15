@@ -39,7 +39,7 @@ public class MainManu extends AppCompatActivity {
         setContentView(R.layout.main_manu);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
+        decorView.setSystemUiVisibility( // make the screen full screen
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -48,6 +48,8 @@ public class MainManu extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         );
 
+
+        // load all the views
         playBN = findViewById(R.id.play_bn);
         recordsBN = findViewById(R.id.records_bn);
 
@@ -83,6 +85,9 @@ public class MainManu extends AppCompatActivity {
 
         cam = new CameraOH(new float[3], new float[3], this);
 
+
+        ///  This is for the cool background ///
+
         // Handle OpenGL stuff
         glView = findViewById(R.id.glView);
         glView.setEGLContextClientVersion(3); // OpenGL ES 3.0
@@ -99,6 +104,7 @@ public class MainManu extends AppCompatActivity {
     }
 
     private void onCameraUpdate(GameObject g) {
+        // turing camera
         Vectors.lookAt(g.position, g.rotation, lookAtPos, 90 - CameraOH.cameraRot[1] + a * CameraOH.getDt(), 1.5f);
     }
 }

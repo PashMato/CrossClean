@@ -4,7 +4,10 @@ import com.example.cross_clean.game_engine.CameraOH;
 import com.example.cross_clean.game_engine.GameObject;
 import com.example.cross_clean.game_engine.Model3D;
 import com.example.cross_clean.game_engine.ObjectTypes;
-import com.example.cross_clean.game_engine.shaders.Rect2D;
+import com.example.cross_clean.game_engine.Rect2D;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Player extends GameObject {
     float laneWidth;
@@ -77,20 +80,29 @@ public class Player extends GameObject {
         }
 
         scale[1] = 0.1f;
-        onOpenManu();
+        onOpenManu(true);
     }
 
     /**
      * This functions is called ether when the player hits a car or
      * the manu button is pressed
      */
-    public void onOpenManu() {
+    public void onOpenManu(boolean dealy) {
         isDead = true;
         velocity[2] = 0;
         isMoving = false;
 
         if (onCollisionFunction != null) {
-            onCollisionFunction.onCollision(this);
+            if (!dealy) {
+                onCollisionFunction.onCollision(Player.this);
+            }
+
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    onCollisionFunction.onCollision(Player.this);
+                }
+            }, 1500);
         }
     }
 }

@@ -13,6 +13,9 @@ import android.widget.TextView;
 
 import com.example.cross_clean.R;
 
+/**
+ * this shows the tutorial automatically
+ */
 public class TutorialFragment extends FrameLayout {
     Context context;
 
@@ -28,6 +31,10 @@ public class TutorialFragment extends FrameLayout {
         init(context);
     }
 
+    /**
+     *  this method is called from the constructor to set the base parameters
+     * @param context the app's context
+     */
     private void init(Context context) {
         LayoutInflater.from(context).inflate(R.layout.tutorial_fragment, this, true);
 
@@ -35,13 +42,14 @@ public class TutorialFragment extends FrameLayout {
     }
 
     private void showTutorial() {
-
+        // Load al of the necessary views
         View overlay = findViewById(R.id.tutorial_overlay);
         View container = findViewById(R.id.tutorial_text_container);
         TextView text = findViewById(R.id.tutorial_text);
         Button next = findViewById(R.id.next_button);
 
-        if (!context.getSharedPreferences("my_prefs", MODE_PRIVATE).getBoolean("show_tutorials", false)) {
+        // hides the tutorial if needs to
+        if (!context.getSharedPreferences("my_prefs", MODE_PRIVATE).getBoolean("show_tutorials", true)) {
             post(() -> {
                 overlay.setVisibility(View.GONE);
                 container.setVisibility(View.GONE);
@@ -54,7 +62,11 @@ public class TutorialFragment extends FrameLayout {
             container.setVisibility(View.VISIBLE);
         });
 
-        String[] steps = getResources().getStringArray(R.array.tutorial_steps);
+        // Read the tutorial's steps according to accessibility mode
+        String[] steps = getResources().getStringArray(
+                context.getSharedPreferences("my_prefs", MODE_PRIVATE).
+                getBoolean("accessibility_mode", false)
+                ? R.array.tutorial_steps_acc : R.array.tutorial_steps);
 
 
         final int[] currentStep = {0};
@@ -69,7 +81,6 @@ public class TutorialFragment extends FrameLayout {
                     overlay.setVisibility(View.GONE);
                     container.setVisibility(View.GONE);
                 });
-
 
                 // Mark tutorial as completed
                 SharedPreferences.Editor editor = context.getSharedPreferences("my_prefs", MODE_PRIVATE).edit();

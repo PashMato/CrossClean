@@ -32,6 +32,14 @@
             android:textColor="#FFFFFF"
             android:id="@+id/show_tutorial"/>
 
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/accessibility_mode"
+        android:gravity="center"
+        android:textColor="#FFFFFF"
+        android:id="@+id/accessibility_mode"/>
+
         <Space
             android:layout_width="match_parent"
             android:layout_height="25dp"/>

@@ -1,4 +1,4 @@
-package com.example.cross_clean.cross_clean.records;
+package com.example.cross_clean.cross_clean;
 
 import android.content.Context;
 

@@ -1,29 +1,51 @@
-package com.example.cross_clean.game_engine.shaders;
+package com.example.cross_clean.game_engine;
 
 import androidx.annotation.NonNull;
 
 import com.example.cross_clean.game_engine.Math.Vectors;
-import com.example.cross_clean.game_engine.Model3D;
 
+/**
+ * this class does simple 2D recting (XZ)
+ */
 public class Rect2D {
-    float[] XYPos;
-    float[] Size;
+    float[] XYPos; // the shift relative to the start pos of the GameObject
+    float[] Size; // the size of the rect
 
+    /**
+     * @return the rect's shift (XYPos)
+     */
     public float[] getXYPos() {
         return XYPos.clone();
     }
+
+    /**
+     * @return the rect size
+     */
     public float[] getSize() {
         return Size.clone();
     }
+
+    /**
+     * creates a 2D rect
+     * @param xy_pos the shift relative to the start pos of the GameObject
+     * @param size the size of the rect
+     */
     public Rect2D(float[] xy_pos, float[] size) {
         XYPos = xy_pos.clone();
         Size = size.clone();
     }
 
+    /**
+     * creates an empty rect
+     */
     public Rect2D() {
         this(new float[2], new float[2]);
     }
 
+    /**
+     * creates a react from a Model3D
+     * @param m the Model3D to create the rect from
+     */
     public Rect2D(Model3D m) { // Calculates the Rect size and position from a Model3D
         XYPos = new float[2];
         float[] xyz_max = new float[] {Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE};
@@ -53,6 +75,13 @@ public class Rect2D {
         return new Rect2D(XYPos, Size);
     }
 
+
+    /**
+     * checks if a dot is in the rect2D
+     * @param pos the pos of the dot
+     * @param considerShift do we want to consider the rect shift (XYPos)
+     * @return is the dot in the rect
+     */
     public boolean dotInRect(float[] pos, boolean considerShift) {
         float[] dot = pos.clone();
         if (considerShift) {
@@ -63,7 +92,9 @@ public class Rect2D {
         return Size[0] > dot[0] && Size[1] > dot[1];
     }
 
-    // Returns 4 corners in local space
+    /**
+     * @return 4 corners in local space
+     */
     public float[][] getCorners() {
         float x = XYPos[0], y = XYPos[1];
         float w = Size[0], h = Size[1];
@@ -76,6 +107,12 @@ public class Rect2D {
         };
     }
 
+    /**
+     * transforms all of the points
+     * @param matrix the RT (S) matrix of the transformation
+     * @param points the array of the points
+     * @return the points transformed in a new array
+     */
     public static float[][] transformPoints(float[] matrix, float[][] points) {
         float tx;
         float ty;

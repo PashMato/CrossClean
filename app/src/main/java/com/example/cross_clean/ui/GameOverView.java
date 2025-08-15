@@ -19,14 +19,19 @@ import com.example.cross_clean.cross_clean.records.Record;
 
 import java.util.Date;
 
+
+/**
+ * this class is connected to the game over manu
+ */
 public class GameOverView extends FrameLayout {
 
     public Record bestRecord = null;
     private Context context = null;
     private TextView score;
     private TextView bestScore;
+    private boolean isShown = false; // so we wouldn't save twice
 
-    public OnDeleteFunction onDeleteFunction;
+    public OnDeleteFunction onDeleteFunction; // this function is called once the game is deleted (java don't have distractors)
 
     public GameOverView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -38,6 +43,10 @@ public class GameOverView extends FrameLayout {
         init(context);
     }
 
+     /**
+     *  this method is called from the constructor to set the base parameters
+     * @param context the app's context
+     */
     private void init(Context context) {
         LayoutInflater.from(context).inflate(R.layout.game_over_view, this, true);
 
@@ -53,7 +62,7 @@ public class GameOverView extends FrameLayout {
                 context.startActivity(new Intent(context, LoadingActivity.class));
 
                 if (context instanceof Activity) {
-                    onDeleteFunction.OnDelete();
+                    onDeleteFunction.OnDelete(); // free the game's memory usage
                     ((Activity) context).finish();
                 }
             }
@@ -65,7 +74,7 @@ public class GameOverView extends FrameLayout {
                 context.startActivity(new Intent(context, MainManu.class));
 
                 if (context instanceof Activity) {
-                    onDeleteFunction.OnDelete();
+                    onDeleteFunction.OnDelete(); // free the game's memory usage
                     ((Activity) context).finish();
                 }
             }
@@ -78,6 +87,12 @@ public class GameOverView extends FrameLayout {
 
     @SuppressLint("SetTextI18n")
     public void show(int _score) {
+        if (isShown) { // make sure this is called only once
+            return;
+        }
+
+        isShown = true;
+
         post(() -> {
             setVisibility(View.VISIBLE);
 

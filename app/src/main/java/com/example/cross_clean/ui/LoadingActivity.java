@@ -5,18 +5,24 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.cross_clean.R;
 import com.example.cross_clean.cross_clean.CrossCleanGame;
 
+/**
+ * this activity opens the game,
+ * it's there because otherwise theres lag when opening the game
+ */
 public class LoadingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
+        decorView.setSystemUiVisibility( // the full screen flags
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -32,9 +38,6 @@ public class LoadingActivity extends AppCompatActivity {
         loadingView.start();  // Show loading
 
         new Thread(() -> {
-            // Simulate loading (e.g., textures, assets, etc.)
-            preloadGameResources();
-
             // Now go to the actual game on the UI thread
             new Handler(Looper.getMainLooper()).post(() -> {
                 Intent intent = new Intent(LoadingActivity.this, CrossCleanGame.class);
@@ -43,10 +46,5 @@ public class LoadingActivity extends AppCompatActivity {
                 finish();
             });
         }).start();
-    }
-
-    private void preloadGameResources() {
-        // If you have textures, files, etc. to prepare — do it here
-        // You can also call static methods in CrossCleanGame to prepare shared stuff
     }
 }

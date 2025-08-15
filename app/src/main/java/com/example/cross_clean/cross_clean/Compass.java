@@ -7,6 +7,9 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
+/**
+ * This class can handle compass heading and jumping detection
+ */
 public class Compass implements SensorEventListener {
 
     private final SensorManager sensorManager;
@@ -77,6 +80,7 @@ public class Compass implements SensorEventListener {
             Log.d("Compass", "Azimuth: " + azimuth);
         }
 
+        // Makes sure the azimuth (orientation) is relative
         if (Float.isNaN(firstAzimuth)) {
             firstAzimuth = azimuth;
         }

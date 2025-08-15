@@ -31,6 +31,11 @@ public class RecordsTable extends FrameLayout {
         init(context);
     }
 
+
+    /**
+     *  this method is called from the constructor to set the base parameters
+     * @param context the app's context
+     */
     private void init(Context context) {
         LayoutInflater.from(context).inflate(R.layout.records_table_fragment, this, true);
 

@@ -11,6 +11,9 @@ import android.widget.ImageView;
 
 import com.example.cross_clean.R;
 
+/**
+ * after opening the game we want an animation of loading (the cake)
+ */
 public class LoadingView extends FrameLayout {
 
     private Drawable drawable;
@@ -25,6 +28,10 @@ public class LoadingView extends FrameLayout {
         init(context);
     }
 
+    /**
+     *  this method is called from the constructor to set the base parameters
+     * @param context the app's context
+     */
     private void init(Context context) {
         LayoutInflater.from(context).inflate(R.layout.loading_fragment, this, true);
         ImageView loadingImage = findViewById(R.id.loading_ani);

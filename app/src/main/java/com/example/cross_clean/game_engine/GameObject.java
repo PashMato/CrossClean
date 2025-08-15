@@ -5,7 +5,6 @@ import android.opengl.GLUtils;
 import android.opengl.Matrix;
 
 import com.example.cross_clean.game_engine.Math.Vectors;
-import com.example.cross_clean.game_engine.shaders.Rect2D;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -73,6 +72,14 @@ public class GameObject {
     public float[] angularVelocity = new float[] {0f, 0f, 0f};
 
 
+    /**
+     * creates a GameObject and list in AllGameObjects.
+     * comment: GameObject will appear invisible so the constructor could finish before we start calling update
+     * @param pos the position
+     * @param rect2D the rect2D
+     * @param m the Model#d
+     * @param objType the type of the object
+     */
     public GameObject(float[] pos, Rect2D rect2D, Model3D m, ObjectTypes objType) {
         // Add to the correct object list
         switch (objType) {
@@ -187,6 +194,12 @@ public class GameObject {
         model3D = null;
     }
 
+
+    /**
+     * checks collisions with another GameObject
+     * @param g the GameObject to check the collisions with
+     * @return whether g collides with this (GameObject)
+     */
     public boolean checkCollision(GameObject g) {
         float[] temp = position.clone();
         Vectors.Subtract(temp, g.position);
@@ -250,14 +263,24 @@ public class GameObject {
         updateFunctions.remove(listener);
     }
 
-    public ObjectGroups getObjectGroup() {
-        return objectGroup;
-    }
-
+    /**
+     * @return returns a clone of the rect2D
+     */
     public Rect2D getRect2D() {
         return rect2D.clone();
     }
 
+    /**
+     * @return the ObjectGroup
+     */
+    public ObjectGroups getObjectGroup() {
+        return objectGroup;
+    }
+
+    /**
+     * set the ObjectGroup
+     * @param og the objectGroup
+     */
     public void setObjectGroup(ObjectGroups og) {
         // Add and remove from the correct list so we wouldn't save the object twice
         if (objectGroup != ObjectGroups.NULL) {
