@@ -132,7 +132,7 @@ public class CrossCleanGame extends AppCompatActivity {
         if (robot.isDead) {
             Vectors.lookAt(g.position, g.rotation, robot.position, 90 - CameraOH.cameraRot[1] + a * CameraOH.getDt(), 1.5f);
         } else {
-            Vectors.lookAt(g.position, g.rotation, robot.position, compass.azimuth, 1.5f);
+            Vectors.lookAt(g.position, g.rotation, robot.position, compass.orientation, 1.5f);
         }
 
         if (robot.position[2] < 0 && scene.startPos >= 0) {

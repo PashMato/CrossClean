@@ -13,8 +13,10 @@ public class Compass implements SensorEventListener {
     private final Sensor rotation;
     private final Sensor accelometer;
 
-    public float azimuth = 0f; // Current smoothed azimuth
+    private float azimuth = 0f; // Current smoothed azimuth
     private float lastAzimuth = 0f;
+    private float firstAzimuth = Float.NaN;
+    public float orientation = 0f;
     private static final float ALPHA = 0.15f; // Smoothing factor (lower = smoother)
 
     public boolean isJumping;
@@ -74,6 +76,12 @@ public class Compass implements SensorEventListener {
             lastAzimuth = azimuth;
             Log.d("Compass", "Azimuth: " + azimuth);
         }
+
+        if (Float.isNaN(firstAzimuth)) {
+            firstAzimuth = azimuth;
+        }
+
+        this.orientation = azimuth - firstAzimuth;
     }
     private float lowPassFilter(float newValue, float oldValue) {
         float delta = ((newValue - oldValue + 540) % 360) - 180;

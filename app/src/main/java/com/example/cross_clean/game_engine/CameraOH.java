@@ -233,6 +233,10 @@ public class CameraOH extends GameObject implements GLSurfaceView.Renderer {
         program = -1;
     }
     protected void draw(GameObject g) {
+        if (g.vertexBuffer == null || g.normalBuffer == null || g.uvMapBuffer == null) { // this object's isn't valid
+            return;
+        }
+
         // Bind texture
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, g.textureId);
 
