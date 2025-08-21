@@ -21,12 +21,14 @@
     <string name="accessibility_mode">Accessibility Mode</string>
 
     <string-array name="tutorial_steps">
+        <item>Make sure you have some space around you so you can play safely</item>
         <item>Turn around to turn the camera</item>
         <item>Jump to move forward</item>
         <item>Good Luck!!!</item>
     </string-array>
 
     <string-array name="tutorial_steps_acc">
+        <item>Make sure you have some space around you so you can play safely</item>
         <item>Turn around to turn the camera</item>
         <item>Touch the screen to move forward</item>
         <item>Good Luck!!!</item>

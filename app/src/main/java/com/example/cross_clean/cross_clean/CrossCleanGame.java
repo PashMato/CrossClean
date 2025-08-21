@@ -89,20 +89,23 @@ public class CrossCleanGame extends AppCompatActivity {
         scene = new Scene(this);
         cam.addListener(scene::UpdateRoad); // This is here because scene isn't a GameObject
 
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() { // Activate the camera & give time for loading
-                loadingView.stop();
-            }
-        }, 3000);
 
         robot = new Player(new float[] {0f, 0f, -1f},
                 Model3D.loadModelById(this, R.raw.i_robot, R.raw.i_robot_texture),
                 scene.settings.laneWidth);
         robot.onCollisionFunction = this::onPlayerCollision;
+        robot.isActive = false;
 
         String name = getSharedPreferences("my_prefs", MODE_PRIVATE).getString("owner_name", "You");
         robot.easterEgg = name.equals("Pashmato");
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() { // Activate the camera & give time for loading
+                loadingView.stop();
+                robot.isActive = true;
+            }
+        }, 3000);
 
         compass = new Compass(this);
         compass.start();
